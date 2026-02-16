@@ -8,17 +8,19 @@
         body { font-family: "Helvetica Neue", Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: #fff; padding: 50px 20px; }
         .container { max-width: 400px; margin: 0 auto; border: 1px solid #D4AF37; padding: 30px; border-radius: 10px; }
         h1 { font-size: 1.5rem; margin-bottom: 20px; color: #D4AF37; }
-        .stars { font-size: 45px; margin: 20px 0; display: flex; justify-content: center; gap: 10px; cursor: pointer; }
-        .star { color: #444; transition: color 0.2s; }
-        .star:hover, .star.active { color: #D4AF37; }
-        p { font-size: 0.9rem; color: #ccc; line-height: 1.6; }
+        .stars { font-size: 50px; margin: 30px 0; display: flex; justify-content: center; gap: 8px; cursor: pointer; }
+        .star { color: #444; transition: transform 0.1s; }
+        .star:active { transform: scale(1.2); } /* タップした瞬間のフィードバック */
+        p { font-size: 0.95rem; color: #ccc; line-height: 1.6; }
+        .footer-logo { margin-top: 20px; font-weight: bold; color: #D4AF37; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>焼肉ほうび</h1>
-    <p>本日はご来店誠にありがとうございました。<br>サービス向上のため、アンケートにご協力をお願いします。</p>
+    <div class="footer-logo">焼肉ほうび</div>
+    <h1>ご来店ありがとうございました</h1>
+    <p>本日の満足度を「星の数」で<br>教えていただけますか？</p>
     
     <div class="stars" id="star-rating">
         <span class="star" data-value="1">★</span>
@@ -28,21 +30,24 @@
         <span class="star" data-value="5">★</span>
     </div>
     
-    <p id="status-text">星をタップして評価してください</p>
+    <p>※星をタップするとページが移動します</p>
 </div>
 
 <script>
     const stars = document.querySelectorAll('.star');
     
     stars.forEach(star => {
-        // マウスホバー時の視覚効果
-        star.addEventListener('mouseover', () => highlightStars(star.dataset.value));
-        star.addEventListener('mouseout', () => highlightStars(0));
-        
-        // クリック時のリダイレクト処理
+        // タップ/クリックした瞬間に実行
         star.addEventListener('click', () => {
             const rating = parseInt(star.dataset.value);
-            executeRedirect(rating);
+            
+            // 視覚的な選択フィードバック
+            highlightStars(rating);
+            
+            // 少しだけ（0.2秒）余韻を残してからリダイレクト
+            setTimeout(() => {
+                executeRedirect(rating);
+            }, 200);
         });
     });
 
@@ -56,14 +61,13 @@
         let targetUrl = "";
         
         if (rate <= 3) {
-            // ★1-3の場合：社内用フィードバックページへ
-            targetUrl = `https://emoost.site/review/low-rating?rate=${rate}&utm_source=yakiniku-houbi`;
+            // ★1-3の場合：社内用フィードバックページへ (計測用utmパラメータ付与) 
+            targetUrl = `https://emoost.site/review/low-rating?rate=${rate}&utm_source=yakiniku-houbi&utm_medium=QRcode`;
         } else {
-            // ★4-5の場合：Googleクチコミページへ直接誘導
+            // ★4-5の場合：Googleクチコミページへ直接誘導 
             targetUrl = `https://g.page/r/CSW75g-ySMbyEAE/review`;
         }
 
-        // ページ遷移の実行
         window.location.href = targetUrl;
     }
 </script>
