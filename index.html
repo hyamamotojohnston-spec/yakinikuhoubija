@@ -5,71 +5,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>焼肉ほうび - お客様アンケート</title>
     <style>
-        body { font-family: "Helvetica Neue", Arial, sans-serif; text-align: center; background-color: #1a1a1a; color: #fff; padding: 50px 20px; }
-        .container { max-width: 400px; margin: 0 auto; border: 1px solid #D4AF37; padding: 30px; border-radius: 10px; }
-        h1 { font-size: 1.5rem; margin-bottom: 20px; color: #D4AF37; }
-        .stars { font-size: 50px; margin: 30px 0; display: flex; justify-content: center; gap: 8px; cursor: pointer; }
-        .star { color: #444; transition: transform 0.1s; }
-        .star:active { transform: scale(1.2); } /* タップした瞬間のフィードバック */
-        p { font-size: 0.95rem; color: #ccc; line-height: 1.6; }
-        .footer-logo { margin-top: 20px; font-weight: bold; color: #D4AF37; }
+        body { 
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif; 
+            text-align: center; 
+            background-color: #000; 
+            color: #fff; 
+            padding: 30px 20px;
+            margin: 0;
+        }
+        .container { 
+            max-width: 450px; 
+            margin: 0 auto; 
+            border: 1px solid #D4AF37; 
+            padding: 30px 15px; 
+            border-radius: 15px; 
+            background: #111;
+        }
+        .shop-name { color: #D4AF37; font-weight: bold; margin-bottom: 5px; }
+        h1 { font-size: 1.3rem; margin-bottom: 25px; line-height: 1.4; }
+        
+        #step-2 { display: none; }
+
+        /* 縦並びの評価リスト */
+        .rating-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .rating-item {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 15px 20px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .rating-item:active {
+            background: #333;
+            border-color: #D4AF37;
+            transform: scale(0.98);
+        }
+
+        .stars-display {
+            font-size: 1.4rem;
+            color: #D4AF37;
+            margin-right: 15px;
+            min-width: 100px;
+            text-align: left;
+        }
+
+        .rating-text {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .next-btn {
+            display: inline-block;
+            padding: 15px 80px;
+            background-color: #D4AF37;
+            color: #000;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="footer-logo">焼肉ほうび</div>
-    <h1>ご来店ありがとうございました</h1>
-    <p>本日の満足度を「星の数」で<br>教えていただけますか？</p>
-    
-    <div class="stars" id="star-rating">
-        <span class="star" data-value="1">★</span>
-        <span class="star" data-value="2">★</span>
-        <span class="star" data-value="3">★</span>
-        <span class="star" data-value="4">★</span>
-        <span class="star" data-value="5">★</span>
+    <div class="shop-name">焼肉ほうび</div>
+
+    <div id="step-1">
+        <h1>本日はご来店<br>誠にありがとうございました</h1>
+        <p>サービス向上のため、簡単なアンケートにご協力をお願いいたします。</p>
+        <button id="start-survey" class="next-btn">次へ</button>
     </div>
-    
-    <p>※星をタップするとページが移動します</p>
+
+    <div id="step-2">
+        <h1>満足度を教えてください</h1>
+        <div class="rating-list">
+            <div class="rating-item" data-value="5">
+                <span class="stars-display">★★★★★</span>
+                <span class="rating-text">すごく満足</span>
+            </div>
+            <div class="rating-item" data-value="4">
+                <span class="stars-display">★★★★</span>
+                <span class="rating-text">満足</span>
+            </div>
+            <div class="rating-item" data-value="3">
+                <span class="stars-display">★★★</span>
+                <span class="rating-text">普通</span>
+            </div>
+            <div class="rating-item" data-value="2">
+                <span class="stars-display">★★</span>
+                <span class="rating-text">やや不満</span>
+            </div>
+            <div class="rating-item" data-value="1">
+                <span class="stars-display">★</span>
+                <span class="rating-text">不満</span>
+            </div>
+        </div>
+        <p style="color: #666; font-size: 0.8rem;">タップすると回答が送信されます</p>
+    </div>
 </div>
 
 <script>
-    const stars = document.querySelectorAll('.star');
-    
-    stars.forEach(star => {
-        // タップ/クリックした瞬間に実行
-        star.addEventListener('click', () => {
-            const rating = parseInt(star.dataset.value);
-            
-            // 視覚的な選択フィードバック
-            highlightStars(rating);
-            
-            // 少しだけ（0.2秒）余韻を残してからリダイレクト
-            setTimeout(() => {
-                executeRedirect(rating);
-            }, 200);
-        });
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const startBtn = document.getElementById('start-survey');
+    const ratingItems = document.querySelectorAll('.rating-item');
+
+    const TRACKING = "openExternalBrowser=1&lang=ja&utm_source=yakiniku-houbi&utm_medium=QRcode&utm_campaign=QRentry";
+
+    startBtn.addEventListener('click', () => {
+        step1.style.display = 'none';
+        step2.style.display = 'block';
     });
 
-    function highlightStars(count) {
-        stars.forEach(s => {
-            s.style.color = s.dataset.value <= count ? '#D4AF37' : '#444';
+    ratingItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const rating = parseInt(item.dataset.value);
+            
+            // 選択時の視覚効果
+            item.style.backgroundColor = "#D4AF37";
+            item.style.color = "#000";
+
+            setTimeout(() => {
+                let url = "";
+                if (rating <= 3) {
+                    // ★1-3: 低評価用（計測パラメータ維持）
+                    url = `https://emoost.site/review/low-rating?rate=${rating}&${TRACKING}`;
+                } else {
+                    // ★4-5: Googleクチコミ
+                    url = `https://g.page/r/CSW75g-ySMbyEAE/review`;
+                }
+                window.location.href = url;
+            }, 300);
         });
-    }
-
-    function executeRedirect(rate) {
-        let targetUrl = "";
-        
-        if (rate <= 3) {
-            // ★1-3の場合：社内用フィードバックページへ (計測用utmパラメータ付与) 
-            targetUrl = `https://emoost.site/review/low-rating?rate=${rate}&utm_source=yakiniku-houbi&utm_medium=QRcode`;
-        } else {
-            // ★4-5の場合：Googleクチコミページへ直接誘導 
-            targetUrl = `https://g.page/r/CSW75g-ySMbyEAE/review`;
-        }
-
-        window.location.href = targetUrl;
-    }
+    });
 </script>
 
 </body>
